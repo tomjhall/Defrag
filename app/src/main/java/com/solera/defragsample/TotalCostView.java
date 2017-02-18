@@ -18,23 +18,19 @@ package com.solera.defragsample;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.util.AttributeSet;
+import android.view.View;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import com.jakewharton.rxbinding.view.RxView;
 import com.jakewharton.rxbinding.widget.RxTextView;
+import com.squareup.coordinators.Coordinator;
 import rx.Observable;
 
-public class TotalCostView extends FrameLayout implements TotalCostPresenter.View {
+public class TotalCostView extends Coordinator implements TotalCostPresenter.View {
 	private final TotalCostPresenter presenter = new TotalCostPresenter();
 	@Bind(R.id.button) FloatingActionButton floatingActionButton;
 	@Bind(R.id.edittext) EditText editText;
-
-	public TotalCostView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-	}
 
 	@NonNull @Override public Observable<CharSequence> onTotalCostChanged() {
 		return RxTextView.textChanges(editText);
@@ -52,24 +48,20 @@ public class TotalCostView extends FrameLayout implements TotalCostPresenter.Vie
 	}
 
 	@Override public void showTotalPeople(int totalCost) {
-		TotalPeoplePresenter.push(ViewStackHelper.getViewStack(this), totalCost);
+		TotalPeoplePresenter.push(ViewStackHelper.getViewStack(getContext()), totalCost);
 	}
 
-	@Override protected void onFinishInflate() {
-		super.onFinishInflate();
-		ButterKnife.bind(this);
-	}
-
-	@Override protected void onAttachedToWindow() {
-		super.onAttachedToWindow();
-		if (isInEditMode()) {
-			return;
-		}
+	@Override public void attach(View view) {
+		ButterKnife.bind(this, view);
 		presenter.takeView(this);
 	}
 
-	@Override protected void onDetachedFromWindow() {
-		super.onDetachedFromWindow();
+	@Override public void detach(View view) {
 		presenter.dropView();
+		ButterKnife.unbind(this);
+	}
+
+	@NonNull @Override public Context getContext() {
+		return editText.getContext();
 	}
 }

@@ -32,6 +32,9 @@ import com.solera.defrag.TraversingOperation;
 import com.solera.defrag.TraversingState;
 import com.solera.defrag.ViewStack;
 import com.solera.defrag.ViewStackListener;
+import com.squareup.coordinators.Coordinator;
+import com.squareup.coordinators.CoordinatorProvider;
+import com.squareup.coordinators.Coordinators;
 
 public class MainActivity extends AppCompatActivity {
 	@Bind(R.id.viewstack) ViewStack viewStack;
@@ -68,6 +71,20 @@ public class MainActivity extends AppCompatActivity {
 		viewStack.addTraversingListener(new ViewStackListener() {
 			@Override public void onTraversing(@TraversingState int traversingState) {
 				disableUI = traversingState != TraversingState.IDLE;
+			}
+		});
+
+		Coordinators.installBinder(viewStack, new CoordinatorProvider() {
+			@Nullable @Override public Coordinator provideCoordinator(View view) {
+				switch (viewStack.getLayoutId(view)) {
+					case R.layout.totalcost:
+						return new TotalCostView();
+					case R.layout.totalpeople:
+						break;
+					case R.layout.breakdown:
+						break;
+				}
+				return null;
 			}
 		});
 
